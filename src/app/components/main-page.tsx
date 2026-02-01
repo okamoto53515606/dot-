@@ -122,7 +122,7 @@ export default function MainPage() {
         </div>
       </header>
 
-      <main className="container mx-auto py-8 md:py-12 px-4 md:px-6">
+      <main className="container mx-auto pt-2 pb-8 px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-8 items-start">
           <div className="space-y-8">
             <GeneratorForm 
