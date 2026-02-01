@@ -5,8 +5,7 @@ import GeneratorForm from '@/app/components/generator-form';
 import CodeOutput from '@/app/components/code-output';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import type { PixelArtData, MovementPattern } from '@/lib/types';
-import type { PixelArtInput } from '@/ai/flows';
+import type { PixelArtData, MovementPattern, PixelArtInput } from '@/lib/types';
 
 // PixelArtDataの初期状態を定義
 const defaultPixelArtData: PixelArtData = {

@@ -1,10 +1,10 @@
 'use server';
 
 import { generatePixelArtData } from '@/ai/flows';
-import type { PixelArtInput, PixelArtOutput } from '@/ai/flows';
+import type { PixelArtInput, PixelArtData } from '@/lib/types';
 
 interface ActionResult {
-  data?: PixelArtOutput;
+  data?: PixelArtData;
   error?: string;
 }
 

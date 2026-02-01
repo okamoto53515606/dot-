@@ -1,1 +1,1 @@
-export * from './generate-pixel-art-data';
+export { generatePixelArtData } from './generate-pixel-art-data';

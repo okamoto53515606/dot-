@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import type { PixelArtInput } from '@/ai/flows';
+import type { PixelArtInput } from '@/lib/types';
 import { MOVEMENT_PATTERNS } from '@/lib/constants';
 import type { MovementPattern } from '@/lib/types';
 
