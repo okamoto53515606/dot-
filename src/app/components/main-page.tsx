@@ -6,7 +6,7 @@ import GeneratorForm from '@/app/components/generator-form';
 import CodeOutput from '@/app/components/code-output';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import type { PixelArtData, MovementPattern, PixelArtInput } from '@/lib/types';
 import { getFullJsCode } from '@/lib/code-templates';
 
@@ -15,7 +15,7 @@ const defaultPixelArtData: PixelArtData = {
   pixelMap: [],
   palette: [],
   description: '',
-  svgString: '', // svgStringを初期化
+  svgString: '',
 };
 
 export default function MainPage() {
@@ -113,7 +113,7 @@ export default function MainPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="py-6 px-4 md:px-6">
+      <header className="pt-6 pb-2 px-4 md:px-6">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold tracking-tight">ドット絵アニメジェネレーター</h1>
           <p className="text-muted-foreground mt-2">
@@ -140,7 +140,7 @@ export default function MainPage() {
               <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
             ) : (
               <Card className="flex items-center justify-center text-center min-h-[400px]">
-                <CardContent>
+                <CardContent className="pt-6">
                   <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />ここにコードが表示されます。</p>
                 </CardContent>
               </Card>
