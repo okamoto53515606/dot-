@@ -34,12 +34,18 @@ export default function MainPage() {
       });
 
       if (!response.ok) {
-        // APIからの詳細なエラーレスポンス(JSON)を取得
-        const errorData = await response.json();
-        console.error('API Error Response:', errorData);
-        // エラーオブジェクトからメッセージを抽出し、なければ汎用メッセージを表示
-        const message = errorData.error?.message || `生成に失敗しました。サーバーがエラーステータス ${response.status} を返しました。`;
-        throw new Error(message);
+        let errorMessage;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            console.error('API Error (JSON):', errorData);
+            errorMessage = errorData.error?.message || `An unexpected JSON error occurred. Status: ${response.status}`;
+        } else {
+            const errorText = await response.text();
+            console.error('API Error (HTML/Text):', errorText);
+            errorMessage = errorText;
+        }
+        throw new Error(errorMessage);
       }
 
       const result: PixelArtData = await response.json();
@@ -48,7 +54,7 @@ export default function MainPage() {
       // トースト通知にAIが生成したdescriptionを表示
       toast({
         title: '生成が完了しました！',
-        description: result.description, 
+        description: result.description,
       });
 
     } catch (error) {
@@ -57,7 +63,9 @@ export default function MainPage() {
       toast({
         variant: 'destructive',
         title: 'エラー',
-        description: errorMessage,
+        description: (
+           <pre className="max-h-60 overflow-auto whitespace-pre-wrap break-words">{errorMessage}</pre>
+        ),
       });
     } finally {
       setIsLoading(false);
