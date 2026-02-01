@@ -115,9 +115,9 @@ export default function MainPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="pt-6 pb-2 px-4 md:px-6">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold tracking-tight">ドット絵アニメジェネレーター</h1>
+          <h1 className="text-3xl font-bold tracking-tight">ドット絵アニメジェネレータ</h1>
           <p className="text-muted-foreground mt-2">
-            あなたの考えたキャラクターがドット絵アニメになります。WEBサイト内でドット絵をアニメーションさせるためのJavascriptコードやリンクタグも生成します。
+            ドット絵アニメを生成します。WEBサイト内でドット絵をアニメーションさせるためのJavascriptコードやリンクタグも生成します。
           </p>
         </div>
       </header>

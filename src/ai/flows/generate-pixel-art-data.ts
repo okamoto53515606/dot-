@@ -19,16 +19,16 @@ const pixelArtPrompt = ai.definePrompt({
   name: 'pixelArtPrompt',
   input: { schema: PixelArtInputSchema },
   output: { schema: PixelArtDataSchema },
-  prompt: `ユーザーの指示に基づいて、ユニークで魅力的な16x16のドット絵キャラクターを生成してください。
+  prompt: `ユーザーの指示に基づいて、16x16のドット絵を生成してください。
 
 ### ユーザーの指示:
-- キャラクター: {{{prompt}}}
+- ドット絵のモチーフ: {{{prompt}}}
 - 動き: {{{movement}}}
 
 ### 出力要件:
 1.  **pixelMap**: 16x16の2次元配列で、各セルには対応するpaletteのインデックスが入ります。透明な部分は0にしてください。
 2.  **palette**: 色の配列です。0番目の色は常に透明を意味する 'transparent' にしてください。実際の色の指定は1番目から始めてください。HEX形式で色を指定してください。
-3.  **description**: 生成したドット絵の創造的で短い説明（日本語で100文字以内）。
+3.  **description**: 生成したドット絵の短い説明（日本語で100文字以内）。
 4.  **svgString**: 上記のpixelMapとpaletteを基に、プレビュー用のSVG文字列を生成してください。SVGの各ピクセルは10x10の<rect>要素で表現してください。SVGのルート要素は <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" style="image-rendering: pixelated;"> のようになっている必要があります。
 
 ### 例:

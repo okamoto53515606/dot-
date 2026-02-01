@@ -23,7 +23,7 @@ import type { MovementPattern } from '@/lib/types';
 
 const formSchema = z.object({
   prompt: z.string()
-    .nonempty('キャラクターのモチーフは必須入力です。')
+    .nonempty('ドット絵のモチーフは必須入力です。')
     .max(50, '50文字以内で入力してください。'),
   movement: z.string().min(1, 'アニメーションは必須入力です。'),
 });
@@ -55,11 +55,10 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
           name="prompt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>キャラクターのモチーフ</FormLabel>
+              <FormLabel>ドット絵のモチーフ</FormLabel>
               <FormControl>
                 <Input placeholder="例: UFO、飛行機、車" {...field} disabled={isLoading} />
               </FormControl>
-              <FormDescription>どんなキャラクターを生成しますか？</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -91,7 +90,7 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>キャラクターの動きを選択します。</FormDescription>
+              <FormDescription>アニメーションの動きを選択します。</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'ドット絵アニメジェネレータ',
-  description: 'AIでドット絵アニメーションを生成します。',
+  description: 'ドット絵アニメを生成します。WEBサイト内でドット絵をアニメーションさせるためのJavascriptコードやリンクタグも生成します。',
 };
 
 export default function RootLayout({
