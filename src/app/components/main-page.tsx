@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import GeneratorForm from '@/app/components/generator-form';
 import CodeOutput from '@/app/components/code-output';
-import AnimationPreview from '@/app/components/animation-preview';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { PixelArtData, MovementPattern, PixelArtInput } from '@/lib/types';
+import { getFullJsCode } from '@/lib/code-templates';
 
 // PixelArtDataの初期状態を定義
 const defaultPixelArtData: PixelArtData = {
@@ -24,9 +24,46 @@ export default function MainPage() {
   const [movementPattern, setMovementPattern] = useState<MovementPattern>('walking');
   const { toast } = useToast();
 
+  useEffect(() => {
+    // If there's no data, remove any existing animation and do nothing else.
+    const canvasElement = document.getElementById('pixel-art-animation-from-script');
+    if (canvasElement) {
+      canvasElement.remove();
+    }
+    const injectorScript = document.getElementById('dynamic-pixel-art-script');
+    if (injectorScript) {
+      injectorScript.remove();
+    }
+    if (!pixelArtData || pixelArtData.pixelMap.length === 0) {
+      return;
+    }
+  
+    // Get the code. The code itself handles removing previous canvases.
+    const scriptTagString = getFullJsCode(pixelArtData, movementPattern);
+    const scriptContent = scriptTagString.replace(/<script>|<\/script>/g, '');
+  
+    // Create and append the new injector script
+    const newScript = document.createElement('script');
+    newScript.id = 'dynamic-pixel-art-script';
+    newScript.textContent = scriptContent;
+    document.body.appendChild(newScript);
+  
+    // Return a cleanup function to run when the component unmounts
+    return () => {
+      const injector = document.getElementById('dynamic-pixel-art-script');
+      if (injector) {
+        injector.remove();
+      }
+      const canvas = document.getElementById('pixel-art-animation-from-script');
+      if (canvas) {
+        canvas.remove();
+      }
+    };
+  }, [pixelArtData, movementPattern]);
+
   const handleGenerate = async (data: PixelArtInput) => {
     setIsLoading(true);
-    setPixelArtData(defaultPixelArtData); // 生成中は一度リセット
+    setPixelArtData(defaultPixelArtData); // This will trigger the cleanup in useEffect
 
     try {
       const response = await fetch('/api/generate', {
@@ -103,10 +140,10 @@ export default function MainPage() {
               <>
                 <Card>
                   <CardHeader>
-                    <CardTitle>アニメーションプレビュー</CardTitle>
+                    <CardTitle>プレビュー</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <AnimationPreview data={pixelArtData} movementPattern={movementPattern} />
+                    <p className="text-muted-foreground">画面下部でアニメーションが実行されています。</p>
                   </CardContent>
                 </Card>
                 <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
@@ -114,7 +151,7 @@ export default function MainPage() {
             ) : (
               <Card className="flex items-center justify-center text-center min-h-[400px]">
                 <CardContent>
-                  <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />ここにプレビューが表示されます。</p>
+                  <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />画面下部でプレビューが開始されます。</p>
                 </CardContent>
               </Card>
             )}
