@@ -34,10 +34,12 @@ export default function MainPage() {
       });
 
       if (!response.ok) {
-        // APIからのエラーレスポンスをテキストとして取得
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`生成に失敗しました。サーバーがエラーを返しました。`);
+        // APIからの詳細なエラーレスポンス(JSON)を取得
+        const errorData = await response.json();
+        console.error('API Error Response:', errorData);
+        // エラーオブジェクトからメッセージを抽出し、なければ汎用メッセージを表示
+        const message = errorData.error?.message || `生成に失敗しました。サーバーがエラーステータス ${response.status} を返しました。`;
+        throw new Error(message);
       }
 
       const result: PixelArtData = await response.json();
