@@ -57,7 +57,7 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
             <FormItem>
               <FormLabel>キャラクターのモチーフ</FormLabel>
               <FormControl>
-                <Input placeholder="例: 猫、ロボット、魔法使い" {...field} disabled={isLoading} />
+                <Input placeholder="例: UFO、飛行機、車" {...field} disabled={isLoading} />
               </FormControl>
               <FormDescription>どんなキャラクターを生成しますか？</FormDescription>
               <FormMessage />

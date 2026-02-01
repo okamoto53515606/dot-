@@ -113,9 +113,9 @@ export default function MainPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="py-6 px-4 md:px-6 border-b">
+      <header className="py-6 px-4 md:px-6">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold tracking-tight">AIドット絵アニメジェネレーター</h1>
+          <h1 className="text-3xl font-bold tracking-tight">ドット絵アニメジェネレーター</h1>
           <p className="text-muted-foreground mt-2">
             あなたの考えたキャラクターがドット絵アニメになります。WEBサイト内でドット絵をアニメーションさせるためのJavascriptコードやリンクタグも生成します。
           </p>
@@ -137,17 +137,7 @@ export default function MainPage() {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
               </Card>
             ) : pixelArtData.pixelMap && pixelArtData.pixelMap.length > 0 ? (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>プレビュー</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">画面下部でアニメーションが実行されています。</p>
-                  </CardContent>
-                </Card>
-                <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
-              </>
+              <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
             ) : (
               <Card className="flex items-center justify-center text-center min-h-[400px]">
                 <CardContent>

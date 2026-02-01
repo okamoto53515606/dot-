@@ -2,7 +2,7 @@ import type { PixelArtData, MovementPattern } from './types';
 
 const generateJavascriptCode = (pixelArt: PixelArtData, movement: MovementPattern): string => {
   const gridSize = 16;
-  const pixelSize = 8;
+  const pixelSize = 4;
   
   // This script is now designed to be directly embedded in a <script> tag.
   const scriptContent = `
