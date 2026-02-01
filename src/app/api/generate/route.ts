@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pixelArtGenerator } from '@/ai/flows/generate-pixel-art-data';
+import { generatePixelArtData } from '@/ai/flows/generate-pixel-art-data';
 
 /**
  * @swagger
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     // Genkitフローを直接呼び出します。
     // フロー内部で入力スキーマの検証が自動的に行われます。
-    const result = await pixelArtGenerator(body);
+    const result = await generatePixelArtData(body);
 
     // 成功した結果を返します。
     return NextResponse.json(result);
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     // エラーのステータスコードを決定します。
     // Genkitの入力検証エラーは通常 'Invalid input' というメッセージを含みます。
-    const status = e.message?.includes('Invalid input') ? 400 : 500;
+    const status = e.message?.includes('Invalid input') || e.message?.includes('Schema validation failed') ? 400 : 500;
 
     //【ご要望の修正】
     // フロントエンドでのデバッグを容易にするため、エラーオブジェクトの

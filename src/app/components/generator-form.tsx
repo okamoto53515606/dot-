@@ -22,10 +22,10 @@ import { MOVEMENT_PATTERNS } from '@/lib/constants';
 import type { MovementPattern } from '@/lib/types';
 
 const formSchema = z.object({
-  characterDescription: z.string()
+  prompt: z.string()
     .nonempty('キャラクターのモチーフは必須入力です。')
     .max(50, '50文字以内で入力してください。'),
-  movementPattern: z.string().min(1, 'アニメーションは必須入力です。'),
+  movement: z.string().min(1, 'アニメーションは必須入力です。'),
 });
 
 type GeneratorFormProps = {
@@ -38,20 +38,13 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      characterDescription: '',
-      movementPattern: 'walking',
+      prompt: '',
+      movement: 'walking',
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Map frontend form values to the backend API schema
-    const dataForApi: PixelArtInput = {
-      characterMotif: values.characterDescription,
-      colorTone: '', // This is now handled by the AI
-      movementPattern: values.movementPattern,
-      additionalFeatures: '', // No input for this, so pass empty string
-    };
-    onGenerate(dataForApi);
+    onGenerate(values);
   }
 
   return (
@@ -59,7 +52,7 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 border rounded-lg shadow-sm bg-card">
         <FormField
           control={form.control}
-          name="characterDescription"
+          name="prompt"
           render={({ field }) => (
             <FormItem>
               <FormLabel>キャラクターのモチーフ</FormLabel>
@@ -73,7 +66,7 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
         />
         <FormField
           control={form.control}
-          name="movementPattern"
+          name="movement"
           render={({ field }) => (
             <FormItem>
               <FormLabel>アニメーション</FormLabel>

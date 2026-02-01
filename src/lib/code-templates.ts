@@ -1,8 +1,8 @@
 import type { PixelArtData, MovementPattern } from './types';
 
 const generateJavascriptCode = (pixelArt: PixelArtData, movement: MovementPattern): string => {
-  const gridSize = 32;
-  const pixelSize = 4;
+  const gridSize = 16;
+  const pixelSize = 8;
   
   // This script is now designed to be directly embedded in a <script> tag.
   const scriptContent = `
@@ -80,7 +80,7 @@ export function getFullJsCode(data: PixelArtData, movementPattern: MovementPatte
 
 export function getHtmlEmbedCode(data: PixelArtData, movementPattern: MovementPattern, previewDataUrl: string): string {
     const jsCode = generateJavascriptCode(data, movementPattern);
-    const base64JsCode = Buffer.from(jsCode.replace(/<\/script>|<script>/g, '')).toString('base64');
+    const base64JsCode = typeof window !== 'undefined' ? window.btoa(jsCode.replace(/<\/script>|<script>/g, '')) : Buffer.from(jsCode.replace(/<\/script>|<script>/g, '')).toString('base64');
     
     const onclickHandler = `(function(){try{var s=document.createElement('script');s.textContent=atob('${base64JsCode}');document.body.appendChild(s);this.style.display='none';}catch(e){console.error('Failed to load pixel art.',e)}}).call(this)`;
 
