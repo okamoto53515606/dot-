@@ -1,78 +1,90 @@
-import type { MovementPattern, PixelArtData } from "@/lib/types";
+import type { PixelArtData, MovementPattern } from './types';
 
-const getMinifiedJs = (pixelMap: number[][], palette: Record<string, string>, movement: MovementPattern) => {
-  // Use color ID 0 for transparency, don't draw it.
-  const code = `
-(function(container){
-var p=${JSON.stringify(pixelMap)};
-var c=${JSON.stringify(palette)};
-var m='${movement}';
-var gs=16;var ps=16;
-var d=document;var w=window;
-var cv=d.createElement('canvas');
-var ct=cv.getContext('2d');
-var cnt=container||d.body;
-cv.width=gs*ps;cv.height=gs*ps;
-ct.imageSmoothingEnabled=false;
-if(!container){
-cv.style.position='fixed';cv.style.top='20px';cv.style.left='20px';cv.style.zIndex='9999';cv.style.border='2px solid #333';cv.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)';
-cv.style.imageRendering='pixelated';
-} else {
-cv.style.width='100%';cv.style.height='100%';
-cv.style.imageRendering='pixelated';
+const generateJavascriptCode = (pixelArt: PixelArtData, movement: MovementPattern): string => {
+  const gridSize = 32;
+  const pixelSize = 4;
+  
+  // This script is now designed to be directly embedded in a <script> tag.
+  const scriptContent = `
+    (function() {
+      const id = 'pixel-art-animation-from-script';
+      let el = document.getElementById(id);
+      if (el) { el.remove(); } // Clean up previous instances
+
+      const c = ${JSON.stringify(pixelArt.palette)};
+      const p = ${JSON.stringify(pixelArt.pixelMap)};
+      const m = '${movement}';
+      const gs = ${gridSize};
+      const ps = ${pixelSize};
+      const canvas = document.createElement('canvas');
+      canvas.id = id;
+      canvas.width = gs;
+      canvas.height = gs;
+      const ctx = canvas.getContext('2d');
+
+      Object.assign(canvas.style, {
+          position: 'fixed',
+          bottom: '10px',
+          left: '0px',
+          zIndex: '9999999',
+          width: (gs * ps) + 'px',
+          height: (gs * ps) + 'px',
+          imageRendering: 'pixelated',
+          pointerEvents: 'none',
+          transform: 'translateX(-' + (gs * ps) + 'px)'
+      });
+
+      document.body.appendChild(canvas);
+
+      for (let y = 0; y < gs; y++) {
+          for (let x = 0; x < gs; x++) {
+              const colorId = p[y] && p[y][x] ? p[y][x] : 0;
+              if (colorId !== 0 && c[colorId]) {
+                  ctx.fillStyle = c[colorId];
+                  ctx.fillRect(x, y, 1, 1);
+              }
+          }
+      }
+
+      let f = 0;
+      let xPos = -(gs * ps);
+
+      function animate() {
+          xPos += 2;
+          if (xPos > window.innerWidth) {
+              xPos = -(gs * ps);
+          }
+          
+          let bounce = 0;
+          if (m === 'jumping') {
+              bounce = Math.abs(Math.sin(f * 0.07)) * 60;
+          } else if (m === 'idle') {
+              bounce = Math.abs(Math.sin(f * 0.05)) * 20;
+          }
+
+          canvas.style.transform = 'translateX(' + xPos + 'px)';
+          canvas.style.bottom = (10 + bounce) + 'px';
+          
+          f++;
+          requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+  `;
+  return `<script>${scriptContent}</script>`;
+};
+
+export function getFullJsCode(data: PixelArtData, movementPattern: MovementPattern): string {
+  return generateJavascriptCode(data, movementPattern);
 }
-cnt.appendChild(cv);
-var f=0;
-function dr(){
-ct.clearRect(0,0,cv.width,cv.height);
-var xo=0;var yo=0;
-if(m==='walking'){xo=Math.floor(f/4)%gs}
-if(m==='idle'){yo=Math.sin(f*0.05)*2*ps/16}
-if(m==='jumping'){yo=Math.abs(Math.sin(f*0.07))*(-gs/2)*ps/16}
-for(var y=0;y<gs;y++){
-for(var x=0;x<gs;x++){
-var col_idx=(x+xo)%gs;
-var cid=p[y][col_idx];
-if(c[cid]){
-ct.fillStyle=c[cid];
-ct.fillRect(x*ps,y*ps+yo,ps,ps);
-}}}
-f++;
-w.requestAnimationFrame(dr);
+
+export function getHtmlEmbedCode(data: PixelArtData, movementPattern: MovementPattern, previewDataUrl: string): string {
+    const jsCode = generateJavascriptCode(data, movementPattern);
+    const base64JsCode = Buffer.from(jsCode.replace(/<\/script>|<script>/g, '')).toString('base64');
+    
+    const onclickHandler = `(function(){try{var s=document.createElement('script');s.textContent=atob('${base64JsCode}');document.body.appendChild(s);this.style.display='none';}catch(e){console.error('Failed to load pixel art.',e)}}).call(this)`;
+
+    const finalHtml = `<a href="javascript:void(0)" onclick="${onclickHandler.replace(/"/g, '&quot;')}"><img src="${previewDataUrl}" alt="Pixel Art Preview" style="image-rendering:pixelated;width:128px;height:128px;border:1px solid #eee;"></a>`;
+
+    return finalHtml;
 }
-dr();
-})
-`;
-  return code.replace(/\s*\n\s*/g, '');
-};
-
-export const getFullJsCode = (data: PixelArtData, movement: MovementPattern): string => {
-  const minified = getMinifiedJs(data.pixelMap, data.palette, movement);
-  return `${minified}();`;
-};
-
-export const getBookmarkletCode = (data: PixelArtData, movement: MovementPattern): string => {
-  const minified = getMinifiedJs(data.pixelMap, data.palette, movement);
-  return `javascript:${encodeURIComponent(`${minified}();`)}`;
-};
-
-export const getHtmlEmbedCode = (data: PixelArtData, movement: MovementPattern, previewDataUrl: string): string => {
-  const uniqueId = `pixel-art-embed-${Date.now()}`;
-  const jsCode = getMinifiedJs(data.pixelMap, data.palette, movement);
-
-  return `
-<div id="${uniqueId}" style="cursor: pointer; width: 256px; height: 256px; border: 1px solid #ddd; border-radius: 8px; background-color: #f0f4f8; background-image: url('${previewDataUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;" title="Click to animate"></div>
-<script>
-  (function() {
-    var el = document.getElementById('${uniqueId}');
-    if (!el) return;
-    el.addEventListener('click', function() {
-      this.onclick = null;
-      this.style.cursor = 'default';
-      this.innerHTML = '';
-      (${jsCode})(this);
-    }, { once: true });
-  })();
-</script>
-  `.trim();
-};

@@ -1,92 +1,94 @@
 'use client';
 
 import { useState } from 'react';
-import type { PixelArtInput } from '@/ai/flows';
-import type { PixelArtData, MovementPattern } from '@/lib/types';
-import { handleGenerate, handleSuggest } from '@/app/actions';
+import GeneratorForm from '@/app/components/generator-form';
+import CodeOutput from '@/app/components/code-output';
+import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import type { PixelArtData, MovementPattern } from '@/lib/types';
+import type { PixelArtInput } from '@/ai/flows';
 
-import GeneratorForm from './generator-form';
-import PixelArtPreview from './pixel-art-preview';
-import CodeOutput from './code-output';
-import { Card, CardContent } from '@/components/ui/card';
+// PixelArtDataの初期状態を定義
+const defaultPixelArtData: PixelArtData = {
+  pixelMap: [],
+  palette: [],
+  description: '',
+  svgString: '', // svgStringを初期化
+};
 
 export default function MainPage() {
-  const [generatedData, setGeneratedData] = useState<PixelArtData | null>(null);
+  const [pixelArtData, setPixelArtData] = useState<PixelArtData>(defaultPixelArtData);
   const [isLoading, setIsLoading] = useState(false);
-  const [movementPattern, setMovementPattern] = useState<MovementPattern>('idle');
+  const [movementPattern, setMovementPattern] = useState<MovementPattern>('walking');
   const { toast } = useToast();
 
-  const onGenerate = async (data: PixelArtInput) => {
+  const handleGenerate = async (data: PixelArtInput) => {
     setIsLoading(true);
-    setGeneratedData(null);
-    setMovementPattern(data.movementPattern as MovementPattern);
+    setPixelArtData(defaultPixelArtData); // 生成中は一度リセット
 
-    const result = await handleGenerate(data);
-    setIsLoading(false);
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
 
-    if (result.error) {
+      if (!response.ok) {
+        // APIからのエラーレスポンスをテキストとして取得
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`生成に失敗しました。サーバーがエラーを返しました。`);
+      }
+
+      const result: PixelArtData = await response.json();
+      setPixelArtData(result);
+
+      // トースト通知にAIが生成したdescriptionを表示
+      toast({
+        title: '生成が完了しました！',
+        description: result.description, 
+      });
+
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました。';
       toast({
         variant: 'destructive',
-        title: 'Generation Failed',
-        description: result.error,
+        title: 'エラー',
+        description: errorMessage,
       });
-    } else if (result.data) {
-      setGeneratedData(result.data);
-      toast({
-        title: 'Generation Complete!',
-        description: result.data.description,
-      });
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const onSuggest = async () => {
-    const result = await handleSuggest();
-    if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Suggestion Failed',
-        description: result.error,
-      });
-      return '';
-    }
-    return result.suggestion || '';
   };
 
   return (
-    <main className="container mx-auto p-4 md:p-8">
-      <header className="text-center mb-8 md:mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
-          ドット絵アニメジェネレータ
-        </h1>
-        <p className="text-muted-foreground md:text-lg">Pixel Art Animation Generator</p>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="py-6 px-4 md:px-6 border-b">
+        <div className="container mx-auto">
+          <h1 className="text-3xl font-bold tracking-tight">AIドット絵アニメジェネレーター</h1>
+          <p className="text-muted-foreground mt-2">
+            あなたの考えたキャラクターがドット絵アニメになります。WEBサイト内でドット絵をアニメーションさせるためのJavascriptコードやリンクタグも生成します。
+          </p>
+        </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-        <div className="lg:col-span-2">
-          <GeneratorForm onGenerate={onGenerate} onSuggest={onSuggest} isLoading={isLoading} />
-        </div>
-        <div className="lg:col-span-3 space-y-8">
-          <Card>
-            <CardContent className="p-6">
-              <PixelArtPreview
-                data={generatedData}
-                movementPattern={movementPattern}
-                isLoading={isLoading}
-              />
-            </CardContent>
-          </Card>
-          {generatedData && (
-            <CodeOutput
-              data={generatedData}
-              movementPattern={movementPattern}
+      <main className="container mx-auto py-8 md:py-12 px-4 md:px-6">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
+          <div className="space-y-8">
+            <GeneratorForm 
+              onGenerate={handleGenerate} 
+              isLoading={isLoading} 
+              onMovementChange={setMovementPattern} 
             />
+          </div>
+          {/* pixelMapが存在し、かつ要素が1つ以上ある場合にのみCodeOutputを表示 */}
+          {pixelArtData.pixelMap && pixelArtData.pixelMap.length > 0 && (
+            <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
           )}
         </div>
-      </div>
-       <footer className="text-center mt-12 text-sm text-muted-foreground">
-        <p>Powered by Google's Generative AI</p>
-      </footer>
-    </main>
+      </main>
+      <Toaster />
+    </div>
   );
 }

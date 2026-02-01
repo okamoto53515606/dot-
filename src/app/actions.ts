@@ -1,6 +1,6 @@
 'use server';
 
-import { generatePixelArtData, suggestPixelArtIdeas } from '@/ai/flows';
+import { generatePixelArtData } from '@/ai/flows';
 import type { PixelArtInput } from '@/ai/flows';
 import type { PixelArtData } from '@/lib/types';
 
@@ -29,20 +29,5 @@ export async function handleGenerate(input: PixelArtInput): Promise<ActionResult
   } catch (e) {
     console.error(e);
     return { error: e instanceof Error ? e.message : 'An unknown error occurred.' };
-  }
-}
-
-interface SuggestionResult {
-  suggestion?: string;
-  error?: string;
-}
-
-export async function handleSuggest(): Promise<SuggestionResult> {
-  try {
-    const result = await suggestPixelArtIdeas();
-    return { suggestion: result.suggestion };
-  } catch (e) {
-    console.error(e);
-    return { error: e instanceof Error ? e.message : 'Failed to get a suggestion.' };
   }
 }

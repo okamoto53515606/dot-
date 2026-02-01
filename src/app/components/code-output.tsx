@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { Copy, Bookmark, Code2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Copy, Code2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import type { MovementPattern, PixelArtData } from '@/lib/types';
-import { getFullJsCode, getBookmarkletCode, getHtmlEmbedCode } from '@/lib/code-templates';
+import { getFullJsCode, getHtmlEmbedCode } from '@/lib/code-templates';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 type CodeOutputProps = {
@@ -15,49 +15,36 @@ type CodeOutputProps = {
   movementPattern: MovementPattern;
 };
 
+type CopiedState = 'js' | 'embed' | null;
+
 export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
   const { toast } = useToast();
-  const [previewDataUrl, setPreviewDataUrl] = useState('');
+  const [copied, setCopied] = useState<CopiedState>(null);
 
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const gridSize = 16;
-    const pixelSize = 16;
-    canvas.width = gridSize * pixelSize;
-    canvas.height = gridSize * pixelSize;
+  // AIが生成したSVG文字列をBase64エンコードして、imgタグのsrcとして使えるようにする
+  const previewSvgDataUrl = useMemo(() => {
+    if (!data.svgString) return '';
+    // btoaはブラウザ環境でのみ利用可能 (このコンポーネントは 'use client')
+    const base64 = typeof window !== 'undefined' ? window.btoa(data.svgString) : '';
+    return `data:image/svg+xml;base64,${base64}`;
+  }, [data.svgString]);
 
-    if (ctx) {
-      ctx.imageSmoothingEnabled = false;
-      const { pixelMap, palette } = data;
-      for (let y = 0; y < gridSize; y++) {
-        for (let x = 0; x < gridSize; x++) {
-          const colorId = pixelMap[y][x];
-          if (palette[colorId] && colorId !== 0) {
-            ctx.fillStyle = palette[colorId];
-            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-          }
-        }
-      }
-      setPreviewDataUrl(canvas.toDataURL('image/png'));
-    }
-  }, [data]);
-  
   const jsCode = useMemo(() => getFullJsCode(data, movementPattern), [data, movementPattern]);
-  const bookmarkletCode = useMemo(() => getBookmarkletCode(data, movementPattern), [data, movementPattern]);
-  const htmlEmbedCode = useMemo(() => getHtmlEmbedCode(data, movementPattern, previewDataUrl), [data, movementPattern, previewDataUrl]);
+  const htmlEmbedCode = useMemo(() => getHtmlEmbedCode(data, movementPattern, previewSvgDataUrl), [data, movementPattern, previewSvgDataUrl]);
 
-  const copyToClipboard = (text: string, type: string) => {
+  const copyToClipboard = (text: string, type: CopiedState) => {
     navigator.clipboard.writeText(text).then(() => {
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
       toast({
-        title: 'Copied to clipboard!',
-        description: `${type} code has been copied.`,
+        title: 'クリップボードにコピーしました！',
+        description: `コードがコピーされました。`,
       });
     }).catch(err => {
       toast({
         variant: 'destructive',
-        title: 'Copy failed',
-        description: 'Could not copy code to clipboard.',
+        title: 'コピーに失敗しました',
+        description: 'コードをクリップボードにコピーできませんでした。',
       });
     });
   };
@@ -65,55 +52,51 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Export Your Creation</CardTitle>
-        <CardDescription>Copy the code to use your animation anywhere.</CardDescription>
+        <CardTitle>生成したドット絵アニメをWEBサイトに組み込む</CardTitle>
+        <CardDescription>コードをコピーして、どこでもアニメーションを使用できます。</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="js" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="js"><Copy className="mr-2 h-4 w-4" /> Minified JS</TabsTrigger>
-            <TabsTrigger value="bookmarklet"><Bookmark className="mr-2 h-4 w-4" /> Bookmarklet</TabsTrigger>
-            <TabsTrigger value="embed"><Code2 className="mr-2 h-4 w-4" /> HTML Embed</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="js"><Code2 className="mr-2 h-4 w-4" /> JavaScript</TabsTrigger>
+            <TabsTrigger value="embed"><Code2 className="mr-2 h-4 w-4" /> HTML埋め込み</TabsTrigger>
           </TabsList>
           
           <TabsContent value="js">
-            <div className="relative mt-4">
-              <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copyToClipboard(jsCode, 'JavaScript')}>
-                <Copy className="h-4 w-4" />
-              </Button>
+            <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
-                <pre className="text-xs whitespace-pre-wrap break-all">
+                <pre className="text-sm whitespace-pre-wrap break-words">
                   <code>{jsCode}</code>
                 </pre>
               </ScrollArea>
-              <p className="text-xs text-muted-foreground mt-2">Paste this into your browser's developer console to run the animation.</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="bookmarklet">
-            <div className="mt-4 flex flex-col items-center justify-center text-center p-4 border rounded-lg bg-muted/50">
-              <p className="mb-4 text-sm">Drag this link to your bookmarks bar to create a bookmarklet.</p>
-              <a 
-                href={bookmarkletCode} 
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                onClick={(e) => e.preventDefault()}
-              >
-                <Bookmark className="mr-2 h-4 w-4" /> Drag Me
-              </a>
+              <Button size="sm" onClick={() => copyToClipboard(jsCode, 'js')} className="w-full mt-2">
+                {copied === 'js' ? <><Check className="mr-2 h-4 w-4" /> コピーしました</> : <><Copy className="mr-2 h-4 w-4" /> クリップボードにコピー</>}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                この&lt;script&gt;タグをブログやウェブサイトに貼り付けると、アニメーションを追加できます。
+              </p>
             </div>
           </TabsContent>
 
           <TabsContent value="embed">
-             <div className="relative mt-4">
-              <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copyToClipboard(htmlEmbedCode, 'HTML Embed')}>
-                <Copy className="h-4 w-4" />
-              </Button>
+             <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
-                <pre className="text-xs whitespace-pre-wrap break-all">
+                <pre className="text-sm whitespace-pre-wrap break-words">
                   <code>{htmlEmbedCode}</code>
                 </pre>
               </ScrollArea>
-              <p className="text-xs text-muted-foreground mt-2">Paste this into your blog or website. The animation starts on click.</p>
+              <Button size="sm" onClick={() => copyToClipboard(htmlEmbedCode, 'embed')} className="w-full mt-2">
+                {copied === 'embed' ? <><Check className="mr-2 h-4 w-4" /> コピーしました</> : <><Copy className="mr-2 h-4 w-4" /> クリップボードにコピー</>}
+              </Button>
+              <div className="text-xs text-muted-foreground mt-2 text-center space-y-2">
+                <p>これをブログやウェブサイトに貼り付けると、以下のようにドット絵アイコン（静止）が表示されます。</p>
+                {previewSvgDataUrl && 
+                  <div className="flex justify-center">
+                    <img src={previewSvgDataUrl} alt="Pixel art preview" className="border rounded" style={{ width: '128px', height: '128px' }} />
+                  </div>
+                }
+                <p>アイコンをクリックすると、アニメーションが開始されます。</p>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
