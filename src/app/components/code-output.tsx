@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Copy, Code2, Check } from 'lucide-react';
+import { Copy, Code2, Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,10 +21,8 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState<CopiedState>(null);
 
-  // AIが生成したSVG文字列をBase64エンコードして、imgタグのsrcとして使えるようにする
   const previewSvgDataUrl = useMemo(() => {
     if (!data.svgString) return '';
-    // btoaはブラウザ環境でのみ利用可能 (このコンポーネントは 'use client')
     const base64 = typeof window !== 'undefined' ? window.btoa(data.svgString) : '';
     return `data:image/svg+xml;base64,${base64}`;
   }, [data.svgString]);
@@ -46,6 +44,31 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
         title: 'コピーに失敗しました',
         description: 'コードをクリップボードにコピーできませんでした。',
       });
+    });
+  };
+
+  const handleDownloadSvg = () => {
+    if (!data.svgString) {
+      toast({
+        variant: 'destructive',
+        title: 'ダウンロード失敗',
+        description: 'SVGデータが見つかりません。',
+      });
+      return;
+    }
+
+    const blob = new Blob([data.svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pixel-art.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({
+      title: 'ダウンロードを開始しました',
+      description: 'pixel-art.svg を保存してください。',
     });
   };
 
@@ -91,8 +114,23 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
               <div className="text-xs text-muted-foreground mt-2 text-center space-y-2">
                 <p>これをブログやウェブサイトに貼り付けると、以下のようにドット絵アイコン（静止）が表示されます。</p>
                 {previewSvgDataUrl && 
-                  <div className="flex justify-center">
-                    <img src={previewSvgDataUrl} alt="Pixel art preview" className="border rounded" style={{ width: '128px', height: '128px' }} />
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    <div className="p-2 border rounded bg-gray-100">
+                      <img 
+                        src={previewSvgDataUrl} 
+                        alt="Pixel art preview" 
+                        className="border" 
+                        style={{ 
+                          width: '128px', 
+                          height: '128px', 
+                          imageRendering: 'pixelated'
+                        }} 
+                      />
+                    </div>
+                    <Button size="sm" variant="outline" onClick={handleDownloadSvg}>
+                        <Download className="mr-2 h-4 w-4" />
+                        SVGをダウンロード
+                    </Button>
                   </div>
                 }
                 <p>アイコンをクリックすると、アニメーションが開始されます。</p>

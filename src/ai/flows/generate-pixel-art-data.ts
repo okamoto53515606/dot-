@@ -1,23 +1,32 @@
-import { streamObject } from 'ai';
+import { generate } from '@genkit-ai/ai';
+import { defineFlow } from '@genkit-ai/flow';
 import { google } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 
 // ユーザーからの入力を受け取るための型定義
-export type PixelArtInput = {
-  prompt: string;
-  movement: string;
-};
+const PixelArtInputSchema = z.object({
+  prompt: z.string(),
+  movement: z.string(),
+});
 
-/**
- * AIを呼び出し、ユーザーのプロンプトに基づいてドット絵のデータを生成します。
- * これには、ピクセルマップ、カラーパレット、説明、そしてプレビュー用のSVG文字列が含まれます。
- * @param {PixelArtInput} input - ユーザーが入力したプロンプトと動きのパターン。
- * @returns {Promise<object>} 生成されたドット絵データとSVG文字列を含むオブジェクト。
- */
-export async function generatePixelArtData({ prompt, movement }: PixelArtInput) {
+// AIからの出力を定義する型スキーマ
+const PixelArtOutputSchema = z.object({
+  pixelMap: z.array(z.array(z.number())).describe('ドット絵のピクセル配置を表す32x32の2次元配列。0は透明。'),
+  palette: z.array(z.string()).describe('使用する色の配列。例: ["#FFFFFF", ...]'),
+  description: z.string().describe('生成したドット絵の短い説明。'),
+  svgString: z.string().describe('プレビュー表示用のSVG文字列。'),
+});
 
-  // AIへの指示を記述したプロンプト文字列
-  const promptText = `ユーザーの指示に基づいて、ユニークで魅力的な32x32のドット絵キャラクターを生成してください。
+// ドット絵生成フローの定義
+export const pixelArtGenerator = defineFlow(
+  {
+    name: 'pixelArtGenerator',
+    inputSchema: PixelArtInputSchema,
+    outputSchema: PixelArtOutputSchema,
+  },
+  async ({ prompt, movement }) => {
+    // AIへの指示を記述したプロンプト
+    const promptText = `ユーザーの指示に基づいて、ユニークで魅力的な32x32のドット絵キャラクターを生成してください。
 
 ### ユーザーの指示:
 - キャラクター: ${prompt}
@@ -32,23 +41,14 @@ export async function generatePixelArtData({ prompt, movement }: PixelArtInput) 
 ### 例:
 もしpixelMapの(0,0)が1で、paletteの1が#FF0000なら、SVGには<rect x="0" y="0" width="10" height="10" fill="#FF0000" />が含まれます。pixelMapの値が0のセルに対応する<rect>は含めないでください。`;
 
-  const result = await streamObject({
-    model: google('gemini-1.5-pro-latest'),
-    schema: z.object({
-      pixelMap: z.array(z.array(z.number())).describe('ドット絵のピクセル配置を表す2次元配列。32x32のグリッド。0は透明。'),
-      palette: z.array(z.string()).describe('使用する色の配列。例: ["#FFFFFF", "#000000", ...]'),
-      description: z.string().describe('生成したドット絵の簡単な説明。'),
-      svgString: z.string().describe('プレビュー表示用のSVG文字列。<svg ...>...</svg>の形式。pixelMapとpaletteに基づいて生成する。'),
-    }),
-    prompt: promptText,
-  });
+    const llmResponse = await generate({
+      model: google('gemini-1.5-pro-latest'),
+      prompt: promptText,
+      output: {
+        schema: PixelArtOutputSchema,
+      },
+    });
 
-  // streamObjectは部分的なオブジェクトのストリームを返すが、
-  // ここでは最後の完全なオブジェクトだけを待って返す
-  let finalObject: any = {};
-  for await (const partialObject of result.partialObjectStream) {
-    finalObject = partialObject;
+    return llmResponse.output();
   }
-
-  return finalObject;
-}
+);
