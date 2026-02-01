@@ -13,6 +13,7 @@ export default {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
+        pixel: ['"Press Start 2P"', 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',

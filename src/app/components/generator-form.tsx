@@ -90,7 +90,6 @@ export default function GeneratorForm({ onGenerate, isLoading, onMovementChange 
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>アニメーションの動きを選択します。</FormDescription>
               <FormMessage />
             </FormItem>
           )}
