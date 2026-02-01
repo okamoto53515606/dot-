@@ -79,7 +79,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
         <CardDescription>コードをコピーして、どこでもアニメーションを使用できます。</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="js" className="w-full">
+        <Tabs defaultValue="embed" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="js"><Code2 className="mr-2 h-4 w-4" /> JavaScript</TabsTrigger>
             <TabsTrigger value="embed"><Code2 className="mr-2 h-4 w-4" /> HTML埋め込み</TabsTrigger>
@@ -112,10 +112,10 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
                 {copied === 'embed' ? <><Check className="mr-2 h-4 w-4" /> コピーしました</> : <><Copy className="mr-2 h-4 w-4" /> クリップボードにコピー</>}
               </Button>
               <div className="text-xs text-muted-foreground mt-2 text-center space-y-2">
-                <p>これをブログやウェブサイトに貼り付けると、以下のようにドット絵アイコン（静止）が表示されます。</p>
+                <p>これをブログやウェブサイトに貼り付けると、以下のようにドット絵アイコン（静止）が表示されます。クリックすると、アニメーションが開始されます。</p>
                 {previewSvgDataUrl && 
                   <div className="flex flex-col items-center gap-2 py-2">
-                    <div className="p-2 border rounded bg-gray-100">
+                    <div className="p-2">
                       <img 
                         src={previewSvgDataUrl} 
                         alt="Pixel art preview" 
@@ -133,7 +133,6 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
                     </Button>
                   </div>
                 }
-                <p>アイコンをクリックすると、アニメーションが開始されます。</p>
               </div>
             </div>
           </TabsContent>

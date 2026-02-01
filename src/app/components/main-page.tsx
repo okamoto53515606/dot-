@@ -141,7 +141,7 @@ export default function MainPage() {
             ) : (
               <Card className="flex items-center justify-center text-center min-h-[400px]">
                 <CardContent>
-                  <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />画面下部でプレビューが開始されます。</p>
+                  <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />ここにコードが表示されます。</p>
                 </CardContent>
               </Card>
             )}
