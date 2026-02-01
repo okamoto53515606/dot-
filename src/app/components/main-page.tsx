@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import GeneratorForm from '@/app/components/generator-form';
 import CodeOutput from '@/app/components/code-output';
+import AnimationPreview from '@/app/components/animation-preview';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { PixelArtData, MovementPattern, PixelArtInput } from '@/lib/types';
 
 // PixelArtDataの初期状態を定義
@@ -91,10 +94,31 @@ export default function MainPage() {
               onMovementChange={setMovementPattern} 
             />
           </div>
-          {/* pixelMapが存在し、かつ要素が1つ以上ある場合にのみCodeOutputを表示 */}
-          {pixelArtData.pixelMap && pixelArtData.pixelMap.length > 0 && (
-            <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
-          )}
+          <div className="space-y-8">
+            {isLoading ? (
+              <Card className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              </Card>
+            ) : pixelArtData.pixelMap && pixelArtData.pixelMap.length > 0 ? (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>アニメーションプレビュー</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AnimationPreview data={pixelArtData} movementPattern={movementPattern} />
+                  </CardContent>
+                </Card>
+                <CodeOutput data={pixelArtData} movementPattern={movementPattern} />
+              </>
+            ) : (
+              <Card className="flex items-center justify-center text-center min-h-[400px]">
+                <CardContent>
+                  <p className="text-muted-foreground">フォームに入力して「ドット絵を生成」ボタンを押すと、<br />ここにプレビューが表示されます。</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </main>
       <Toaster />

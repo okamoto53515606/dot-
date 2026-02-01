@@ -21,17 +21,17 @@ const generateJavascriptCode = (pixelArt: PixelArtData, movement: MovementPatter
       canvas.width = gs;
       canvas.height = gs;
       const ctx = canvas.getContext('2d');
+      const characterWidth = gs * ps;
 
       Object.assign(canvas.style, {
           position: 'fixed',
           bottom: '10px',
           left: '0px',
           zIndex: '9999999',
-          width: (gs * ps) + 'px',
+          width: characterWidth + 'px',
           height: (gs * ps) + 'px',
           imageRendering: 'pixelated',
           pointerEvents: 'none',
-          transform: 'translateX(-' + (gs * ps) + 'px)'
       });
 
       document.body.appendChild(canvas);
@@ -47,19 +47,32 @@ const generateJavascriptCode = (pixelArt: PixelArtData, movement: MovementPatter
       }
 
       let f = 0;
-      let xPos = -(gs * ps);
+      let xPos = 0;
+      let direction = 1;
 
       function animate() {
-          xPos += 2;
-          if (xPos > window.innerWidth) {
-              xPos = -(gs * ps);
+          if (m === 'walking') {
+            xPos += 2 * direction;
+            if (xPos + characterWidth >= window.innerWidth && direction === 1) {
+              direction = -1;
+            } else if (xPos <= 0 && direction === -1) {
+              direction = 1;
+            }
+          } else {
+            // Non-walking animations just traverse the screen and loop
+            xPos += 2;
+            if (xPos > window.innerWidth) {
+                xPos = -characterWidth;
+            }
           }
           
           let bounce = 0;
           if (m === 'jumping') {
               bounce = Math.abs(Math.sin(f * 0.07)) * 60;
           } else if (m === 'idle') {
-              bounce = Math.abs(Math.sin(f * 0.05)) * 20;
+              bounce = Math.sin(f * 0.05) * 20;
+          } else if (m === 'walking') {
+              bounce = Math.abs(Math.sin(f * 0.2) * 5); // A little bob
           }
 
           canvas.style.transform = 'translateX(' + xPos + 'px)';
