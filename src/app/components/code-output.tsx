@@ -85,7 +85,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
             <TabsTrigger value="embed"><Code2 className="mr-2 h-4 w-4" /> HTML埋め込み</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="js">
+          <TabsContent value="js" className="min-w-0">
             <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
                 <pre className="text-sm whitespace-pre-wrap break-words break-all">
@@ -101,7 +101,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="embed">
+          <TabsContent value="embed" className="min-w-0">
              <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
                 <pre className="text-sm whitespace-pre-wrap break-words break-all">
