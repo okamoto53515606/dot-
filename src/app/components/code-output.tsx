@@ -88,7 +88,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
           <TabsContent value="js">
             <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
-                <pre className="text-sm whitespace-pre-wrap break-words">
+                <pre className="text-sm whitespace-pre-wrap break-words break-all">
                   <code>{jsCode}</code>
                 </pre>
               </ScrollArea>
@@ -104,7 +104,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
           <TabsContent value="embed">
              <div className="mt-4">
               <ScrollArea className="h-48 w-full rounded-md border p-4 bg-muted/50">
-                <pre className="text-sm whitespace-pre-wrap break-words">
+                <pre className="text-sm whitespace-pre-wrap break-words break-all">
                   <code>{htmlEmbedCode}</code>
                 </pre>
               </ScrollArea>
