@@ -9,8 +9,6 @@
 
 👉 **[ドット絵アニメジェネレータを使ってみる](https://dot.okamomedia.tokyo/)**
 
-![アプリ画面スクショ](https://storage.googleapis.com/studio-4200137858-cfe20.firebasestorage.app/articles/8L047bkoMROOvV9vrhTgTObqKdO2/1770040578567-dot_okamomedia_tokyo.png)
-
 ## ✨ 主な機能
 
 - **AIドット絵生成**: 
