@@ -5,16 +5,16 @@
 ## 🚀 概要
 
 2026/02/01：自動生成できるアプリを作りました！
-キーワードを入れるだけで、AI（gemini-3.1-flash-lite-preview）が約10～15秒でオリジナルのドット絵を生成するWebアプリです。生成されたHTMLタグを貼れば、あなたのブログでも「クリックで動くドット絵」がすぐに設置できます。インストール不要・無料で遊べるので、ぜひ自分だけのキャラを召喚してみてください！
+キーワードを入れるだけで、AI（gemini-3.1-flash-lite）が約10～15秒でオリジナルのドット絵を生成するWebアプリです。生成されたHTMLタグを貼れば、あなたのブログでも「クリックで動くドット絵」がすぐに設置できます。インストール不要・無料で遊べるので、ぜひ自分だけのキャラを召喚してみてください！
 
 👉 **[ドット絵アニメジェネレータを使ってみる](https://dot.okamomedia.tokyo/)**
 
-![アプリ画面スクショ](https://storage.googleapis.com/studio-4200137858-cfe20.firebasestorage.app/articles/8L047bkoMROOvV9vrhTgTObqKdO2/1770040578567-dot_okamomedia_tokyo.png)
+![アプリ画面スクショ](https://www.okamomedia.tokyo/media/articles/8L047bkoMROOvV9vrhTgTObqKdO2/1770040578567-dot_okamomedia_tokyo.png)
 
 ## ✨ 主な機能
 
 - **AIドット絵生成**: 
-  - 使用モデル: `gemini-3.1-flash-lite-preview`
+  - 使用モデル: `gemini-3.1-flash-lite`
   - 「UFO」「飛行機」「車」などのキーワードから16x16のドット絵をAIがデザイン。
   - 生成完了まで約10～15秒。世界に一つだけのドット絵が出来上がります。
 - **アニメーション出力**: 生成されたドット絵に合わせた動きをJavaScriptで制御。
