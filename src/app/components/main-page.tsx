@@ -25,41 +25,50 @@ export default function MainPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // If there's no data, remove any existing animation and do nothing else.
-    const canvasElement = document.getElementById('pixel-art-animation-from-script');
-    if (canvasElement) {
-      canvasElement.remove();
-    }
-    const injectorScript = document.getElementById('dynamic-pixel-art-script');
-    if (injectorScript) {
-      injectorScript.remove();
-    }
-    if (!pixelArtData || pixelArtData.pixelMap.length === 0) {
-      return;
-    }
-  
-    // Get the code. The code itself handles removing previous canvases.
-    const scriptTagString = getFullJsCode(pixelArtData, movementPattern);
-    const scriptContent = scriptTagString.replace(/<script>|<\/script>/g, '');
-  
-    // Create and append the new injector script
-    const newScript = document.createElement('script');
-    newScript.id = 'dynamic-pixel-art-script';
-    newScript.textContent = scriptContent;
-    document.body.appendChild(newScript);
-  
-    // Return a cleanup function to run when the component unmounts
-    return () => {
-      const injector = document.getElementById('dynamic-pixel-art-script');
-      if (injector) {
-        injector.remove();
+    try {
+      // If there's no data, remove any existing animation and do nothing else.
+      const canvasElement = document.getElementById('pixel-art-animation-from-script');
+      if (canvasElement) {
+        canvasElement.remove();
       }
-      const canvas = document.getElementById('pixel-art-animation-from-script');
-      if (canvas) {
-        canvas.remove();
+      const injectorScript = document.getElementById('dynamic-pixel-art-script');
+      if (injectorScript) {
+        injectorScript.remove();
       }
-    };
-  }, [pixelArtData, movementPattern]);
+      if (!pixelArtData || pixelArtData.pixelMap.length === 0) {
+        return;
+      }
+
+      // Get the code. The code itself handles removing previous canvases.
+      const scriptTagString = getFullJsCode(pixelArtData, movementPattern);
+      const scriptContent = scriptTagString.replace(/<script>|<\/script>/g, '');
+
+      // Create and append the new injector script
+      const newScript = document.createElement('script');
+      newScript.id = 'dynamic-pixel-art-script';
+      newScript.textContent = scriptContent;
+      document.body.appendChild(newScript);
+
+      // Return a cleanup function to run when the component unmounts
+      return () => {
+        const injector = document.getElementById('dynamic-pixel-art-script');
+        if (injector) {
+          injector.remove();
+        }
+        const canvas = document.getElementById('pixel-art-animation-from-script');
+        if (canvas) {
+          canvas.remove();
+        }
+      };
+    } catch (error) {
+      console.error('Error during pixel art animation setup:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Animation Error',
+        description: 'An error occurred while trying to display the pixel art animation.',
+      });
+    }
+  }, [pixelArtData, movementPattern, toast]);
 
   const handleGenerate = async (data: PixelArtInput) => {
     setIsLoading(true);
