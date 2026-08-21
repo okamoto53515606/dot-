@@ -6,7 +6,7 @@ import { generatePixelArtData } from '@/ai/flows/generate-pixel-art-data';
  * /api/generate:
  *   post:
  *     summary: Generates pixel art data based on a user prompt.
- *     description: This endpoint receives a user's prompt, invokes the Genkit AI flow to generate pixel art, and returns the generated data including a pixel map, color palette, and SVG string.
+ *     description: This endpoint receives a user's prompt, invokes Gemini via @google/genai to generate pixel art, and returns the generated data including a pixel map, color palette, and SVG string.
  *     requestBody:
  *       required: true
  *       content:
@@ -32,8 +32,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Genkitフローを直接呼び出します。
-    // フロー内部で入力スキーマの検証が自動的に行われます。
+    // Gemini 呼び出し。入力スキーマの検証は generatePixelArtData 内で行う。
     const result = await generatePixelArtData(body);
 
     // 成功した結果を返します。
@@ -43,8 +42,6 @@ export async function POST(request: Request) {
     // エラー発生時は、詳細な情報をログに出力します。
     console.error('[API /api/generate] Error:', e);
 
-    // エラーのステータスコードを決定します。
-    // Genkitの入力検証エラーは通常 'Invalid input' というメッセージを含みます。
     const status = e.message?.includes('Invalid input') || e.message?.includes('Schema validation failed') ? 400 : 500;
 
     //【ご要望の修正】

@@ -3,7 +3,7 @@
 ## Core Features:
 
 - Input Form: Capture user inputs for character motif, color tone, movement pattern, and additional features.
-- AI Data Generation: Use Genkit to generate the pixelMap (16x16 array of color IDs), palette (color ID to HEX code mapping), and a short description of the generated dot matrix, in JSON format.
+- AI Data Generation: Use @google/genai (gemini-3.1-flash-lite) to generate the pixelMap (16x16 array of color IDs), palette (color ID to HEX code mapping), and a short description of the generated dot matrix, in JSON format.
 - Preview Animation: Display the generated dot matrix on a canvas and animate it based on the selected movement pattern, with a re-generation option.
 - JavaScript Code Generation: Combine the generated dot matrix and the movement logic to create executable JavaScript code, available for copying, bookmarklet creation, or HTML embedding.
 - Copy Minified Script: Provide a button to copy the minified JavaScript code to the clipboard for easy execution in Chrome's console.

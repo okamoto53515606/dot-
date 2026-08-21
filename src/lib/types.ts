@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Genkitフローへの入力データ構造をZodスキーマで定義します。
+ * ドット絵生成への入力データ構造をZodスキーマで定義します。
  */
 export const PixelArtInputSchema = z.object({
   prompt: z.string().describe('ドット絵のデザインに関するユーザーからの指示（例：「サングラスをかけた猫」）'),
@@ -10,7 +10,7 @@ export const PixelArtInputSchema = z.object({
 export type PixelArtInput = z.infer<typeof PixelArtInputSchema>;
 
 /**
- * Genkitフローからの出力データ構造をZodスキーマで定義します。
+ * ドット絵生成の出力データ構造をZodスキーマで定義します。
  * これがAIによって生成されるドット絵の構造になります。
  */
 export const PixelArtDataSchema = z.object({
