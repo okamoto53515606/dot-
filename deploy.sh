@@ -11,7 +11,7 @@ SERVICE="dot-pixel-art"
 REPO="dot-pixel-art-images"
 IMAGE_TAG="asia-northeast1-docker.pkg.dev/${PROJECT}/${REPO}/${SERVICE}:v1"
 
-# .env から GOOGLE_GENAI_API_KEY を読み取る
+# .env から各 API キーを読み取る
 if [ -f .env ]; then
   export $(grep -v '^#' .env | xargs)
 fi
@@ -19,6 +19,14 @@ fi
 if [ -z "$GOOGLE_GENAI_API_KEY" ]; then
   echo "エラー: .env に GOOGLE_GENAI_API_KEY が設定されていません"
   exit 1
+fi
+
+if [ -z "$TYPESAFE_API_KEY" ]; then
+  echo "警告: .env に TYPESAFE_API_KEY が設定されていません"
+  echo "      -> 入力モデレーション（jev）は本番で無効になります（fail-open）"
+  ENV_VARS="GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY}"
+else
+  ENV_VARS="GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY},TYPESAFE_API_KEY=${TYPESAFE_API_KEY}"
 fi
 
 echo "========================================"
@@ -67,7 +75,7 @@ gcloud run deploy ${SERVICE} \
   --max-instances=1 \
   --min-instances=0 \
   --timeout=300 \
-  --set-env-vars="GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY}"
+  --set-env-vars="${ENV_VARS}"
 
 echo ""
 echo "========================================"
