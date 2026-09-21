@@ -7,7 +7,8 @@
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eval:moderation": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-moderation.mts"
   },
   "dependencies": {
     "@google/genai": "^1.40.0",

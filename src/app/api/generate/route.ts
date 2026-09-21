@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generatePixelArtData } from '@/ai/flows/generate-pixel-art-data';
+import { ModerationBlockedError, isModerationBlockedError } from '@/lib/moderation';
 
 /**
  * @swagger
@@ -42,7 +43,10 @@ export async function POST(request: Request) {
     // エラー発生時は、詳細な情報をログに出力します。
     console.error('[API /api/generate] Error:', e);
 
-    const status = e.message?.includes('Invalid input') || e.message?.includes('Schema validation failed') ? 400 : 500;
+    // 入力モデレーションによるブロックは、利用者側の入力の問題なので 400 を返します。
+    const blocked = isModerationBlockedError(e);
+
+    const status = blocked || e.message?.includes('Invalid input') || e.message?.includes('Schema validation failed') ? 400 : 500;
 
     //【ご要望の修正】
     // フロントエンドでのデバッグを容易にするため、エラーオブジェクトの
@@ -50,6 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: {
+          code: blocked ? ModerationBlockedError.code : undefined,
           message: e.message || 'An unknown error occurred.',
           stack: e.stack,
           details: e.details, // ZodErrorなどの詳細情報が含まれる場合があります

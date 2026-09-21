@@ -2,6 +2,7 @@
 
 import { Type } from '@google/genai';
 import { GEMINI_MODEL, getGenAI } from '@/ai/google-genai';
+import { ModerationBlockedError, screenInput } from '@/lib/moderation';
 import {
   PixelArtInputSchema,
   PixelArtDataSchema,
@@ -65,6 +66,15 @@ export async function generatePixelArtData(input: PixelArtInput): Promise<PixelA
     const error = new Error('Invalid input');
     (error as Error & { details: unknown }).details = parsedInput.error.flatten();
     throw error;
+  }
+
+  // 生成前の入力モデレーション（jev）。危険項目の確率が閾値以上なら理由を返して中断する。
+  const moderation = await screenInput({
+    prompt: parsedInput.data.prompt,
+    movement: parsedInput.data.movement,
+  });
+  if (moderation.action === 'block') {
+    throw new ModerationBlockedError(moderation);
   }
 
   const response = await getGenAI().models.generateContent({
