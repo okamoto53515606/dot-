@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "eval:moderation": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-moderation.mts"
+    "eval:moderation": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-moderation.mts",
+    "eval:name-matching": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-name-matching.mts"
   },
   "dependencies": {
     "@google/genai": "^1.40.0",
