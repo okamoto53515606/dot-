@@ -352,6 +352,8 @@ NG の入力（20件）  : 0.70 〜 0.99   ← 最小は「下着姿の女性」
 > **この節は本アプリの機能ではありません。** 同じ jev を「顧客データの名寄せ（重複レコードの同定）」に
 > 使えるかを検証した記録です。設計は TypeSafe の公式 cookbook
 > [Knowledge graph entity alignment](https://docs.typesafe.ai/cookbooks/entity_alignment) に倣っています。
+>
+> EC サイトのゲスト注文を題材にした具体的な設計・精度評価は [name-matching.md](./name-matching.md) に分離しました。
 
 ### 6.1 想定するアーキテクチャ
 
