@@ -367,6 +367,41 @@ async function main() {
   }
 
   const tokens = results.reduce((sum, r) => sum + r.inputTokens, 0);
+
+  // ─── 新設計（リピータフラグのみ・スルー方式）の指標 ───
+  // 顧客マスタもマージも持たず、既存注文に「リピータ」フラグを立てるかどうかだけを決める。
+  // フラグを立てない場合は新規ゲスト注文としてそのまま通す（エラーも認証画面も出さない）。
+  const flagged = (r: Result) => r.identity.score >= 1.5 && r.identity.confidence >= MERGE_CONFIDENCE;
+  const wantFlag = (c: TestCase) => c.expect === 'merge';
+
+  let tp = 0;
+  let fp = 0;
+  let fn = 0;
+  let tn = 0;
+  const fpCases: string[] = [];
+  const fnCases: string[] = [];
+  for (const r of results) {
+    if (wantFlag(r.testCase)) {
+      if (flagged(r)) tp += 1;
+      else {
+        fn += 1;
+        fnCases.push(`${r.testCase.id}(${r.identity.score.toFixed(2)}/${r.identity.confidence.toFixed(2)})`);
+      }
+    } else if (flagged(r)) {
+      fp += 1;
+      fpCases.push(`${r.testCase.id}(${r.identity.score.toFixed(2)}/${r.identity.confidence.toFixed(2)})`);
+    } else {
+      tn += 1;
+    }
+  }
+
+  console.log('\n【新設計: リピータフラグのみ（フラグ or スルー）】');
+  console.log(`  正しくフラグ   ${tp}`);
+  console.log(`  誤フラグ (FP)  ${fp}   ${fpCases.join(' ')}`);
+  console.log(`  取りこぼし(FN) ${fn}   ${fnCases.join(' ')}`);
+  console.log(`  正しくスルー   ${tn}`);
+  if (tp + fp > 0) console.log(`  適合率 ${((tp / (tp + fp)) * 100).toFixed(0)}% / 再現率 ${((tp / (tp + fn)) * 100).toFixed(0)}%`);
+
   console.log(`\n入力トークン合計 ${tokens}（1ペア平均 ${Math.round(tokens / results.length)}）`);
 }
 
