@@ -38,7 +38,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
         title: 'クリップボードにコピーしました！',
         description: `コードがコピーされました。`,
       });
-    }).catch(err => {
+    }).catch(() => {
       toast({
         variant: 'destructive',
         title: 'コピーに失敗しました',
@@ -116,6 +116,7 @@ export default function CodeOutput({ data, movementPattern }: CodeOutputProps) {
                 {previewSvgDataUrl && 
                   <div className="flex flex-col items-center gap-2 py-2">
                     <div className="p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- 128px の SVG data URL プレビュー。next/image の最適化は data URL には効かないため <img> を使う */}
                       <img 
                         src={previewSvgDataUrl} 
                         alt="Pixel art preview" 

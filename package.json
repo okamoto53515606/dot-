@@ -6,7 +6,7 @@
     "dev": "next dev -p 3000",
     "build": "NODE_ENV=production next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "eval:moderation": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-moderation.mts",
     "eval:name-matching": "node --experimental-transform-types --env-file-if-exists=.env scripts/eval-name-matching.mts"
@@ -38,6 +38,8 @@
     "@types/node": "^20",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.6",
     "postcss": "^8.5.23",
     "tailwindcss": "^3.4.19",
     "typescript": "^5"
