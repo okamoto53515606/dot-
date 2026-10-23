@@ -1,11 +1,12 @@
+# Node.js 24（CVE-2026-111497 / Node2Shell 修正版 24.22.1 以降を取得するためマイナーバージョンは固定しない）
 # ---- Stage 1: Dependencies ----
-FROM node:22-slim AS deps
+FROM node:24-slim AS deps
 WORKDIR /app
 COPY package.json ./
 RUN npm install --legacy-peer-deps
 
 # ---- Stage 2: Build ----
-FROM node:22-slim AS builder
+FROM node:24-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -13,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # ---- Stage 3: Runner ----
-FROM node:22-slim AS runner
+FROM node:24-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
