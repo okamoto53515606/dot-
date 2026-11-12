@@ -1,4 +1,6 @@
-# Node.js 24（CVE-2026-111497 / Node2Shell 修正版 24.22.1 以降を取得するためマイナーバージョンは固定しない）
+# Node.js 24（2026-11-11 のセキュリティリリース 24.22.3 以降を取得するためマイナーバージョンは固定しない）
+# 24.22.3: CVE-2026-123863（HTTP/2 DoS）/ CVE-2026-126051（TLS DoS）/ CVE-2026-123864（HTTPS メモリ漏えい）
+#          / CVE-2026-123866（HTTP/2 解放済みメモリ送信）ほか high 7 件・medium 6 件・low 3 件を修正
 # ---- Stage 1: Dependencies ----
 FROM node:24-slim AS deps
 WORKDIR /app
